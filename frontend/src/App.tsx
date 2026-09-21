@@ -1,17 +1,41 @@
-import { useState } from 'react'
-import heroImg from './assets/hero.png'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import './App.css'
+import { useEffect, useState } from 'react';
+import { fetchApi } from './api';
 
-function App() {
-  const [count, setCount] = useState(0)
-
-  return (
-    <>
-      <div>siuuuu</div>
-    </>
-  )
+interface User {
+  id: number;
+  username: string;
 }
 
-export default App
+function App() {
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [status, setStatus] = useState<string>('Connecting to backend...');
+
+  useEffect(() => {
+    fetchApi<{ user: User | null }>('/api/me')
+      .then((data) => {
+        setUser(data.user);
+        setStatus('Successfully connected to Flask backend!');
+      })
+      .catch((err) => {
+        setStatus(`Backend connection failed: ${err.message}`);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }, []);
+
+  return (
+    <div style={{ padding: '2rem', fontFamily: 'sans-serif' }}>
+      <h1>GatherRound</h1>
+      <p><strong>Status:</strong> {status}</p>
+      {loading ? (
+        <p>Loading session data...</p>
+      ) : (
+        <p>Logged in as: {user ? user.username : 'Guest (Not logged in)'}</p>
+      )}
+    </div>
+  );
+}
+
+export default App;
