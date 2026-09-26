@@ -84,16 +84,16 @@ function App() {
       </header>
 
       <main className="main-content">
-        {shareCode ? (
-          <EventDetail shareCode={shareCode} user={user} onOpenAuth={() => setAuthMode('login')} onBack={showPlans ? goToPlans : goHome} />
-        ) : authMode ? (
+        {authMode ? (
           <AuthPanel
             initialMode={authMode}
             onCancel={() => setAuthMode(null)}
             onSuccess={(nextUser) => { setUser(nextUser); setAuthMode(null); }}
           />
+        ) : shareCode ? (
+          <EventDetail shareCode={shareCode} user={user} loading={loading} onOpenAuth={() => setAuthMode('login')} onBack={showPlans ? goToPlans : goHome} />
         ) : showPlans ? (
-          <MyPlans onOpenPlan={openEvent} onCreatePlan={goHome} onLogin={() => setAuthMode('login')} />
+          <MyPlans key={user?.id ?? 'signed-out'} user={user} onOpenPlan={openEvent} onCreatePlan={goHome} onLogin={() => setAuthMode('login')} />
         ) : (
           <>
             <section className="intro-row">

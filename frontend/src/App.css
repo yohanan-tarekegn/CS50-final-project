@@ -510,6 +510,21 @@ h2 {
   cursor: pointer;
 }
 
+.share-control {
+  display: grid;
+  justify-items: end;
+  gap: 7px;
+}
+
+.share-status {
+  max-width: 250px;
+  margin: 0;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.4;
+  text-align: right;
+}
+
 .share-button:hover {
   border-color: var(--leaf);
   background: rgba(255, 254, 250, 0.8);

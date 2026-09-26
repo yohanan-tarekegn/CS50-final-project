@@ -21,6 +21,7 @@ interface EventData {
 interface EventDetailProps {
   shareCode: string;
   user: User | null;
+  loading: boolean;
   onOpenAuth: () => void;
   onBack: () => void;
 }
@@ -29,11 +30,12 @@ async function fetchEvent(shareCode: string): Promise<EventData> {
   return fetchApi<EventData>(`/api/events/${encodeURIComponent(shareCode)}`);
 }
 
-export function EventDetail({ shareCode, user, onOpenAuth, onBack }: EventDetailProps) {
+export function EventDetail({ shareCode, user, loading, onOpenAuth, onBack }: EventDetailProps) {
   const [event, setEvent] = useState<EventData | null>(null);
   const [error, setError] = useState('');
   const [busyOption, setBusyOption] = useState<number | null>(null);
   const [copied, setCopied] = useState(false);
+  const [shareMessage, setShareMessage] = useState('');
 
   const loadEvent = async () => {
     try {
@@ -83,9 +85,34 @@ export function EventDetail({ shareCode, user, onOpenAuth, onBack }: EventDetail
   };
 
   const copyLink = async () => {
-    await navigator.clipboard.writeText(window.location.href);
-    setCopied(true);
-    window.setTimeout(() => setCopied(false), 1800);
+    setShareMessage('');
+    try {
+      let didCopy = false;
+      if (navigator.clipboard?.writeText) {
+        try {
+          await navigator.clipboard.writeText(window.location.href);
+          didCopy = true;
+        } catch {
+          didCopy = false;
+        }
+      }
+      if (!didCopy) {
+        const linkInput = document.createElement('textarea');
+        linkInput.value = window.location.href;
+        linkInput.setAttribute('readonly', '');
+        linkInput.style.position = 'fixed';
+        linkInput.style.opacity = '0';
+        document.body.appendChild(linkInput);
+        linkInput.select();
+        didCopy = document.execCommand('copy');
+        linkInput.remove();
+      }
+      if (!didCopy) throw new Error('Copy unavailable');
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 1800);
+    } catch {
+      setShareMessage('Automatic copying is unavailable. Copy the URL from your address bar.');
+    }
   };
 
   if (error && !event) {
@@ -99,14 +126,17 @@ export function EventDetail({ shareCode, user, onOpenAuth, onBack }: EventDetail
       <button className="back-link" onClick={onBack}>← Back</button>
       <div className="event-heading">
         <div><p className="eyebrow">A gathering by {event.creator}</p><h1>{event.title}</h1>{event.description && <p className="event-description">{event.description}</p>}</div>
-        <button className="share-button" onClick={() => void copyLink()} aria-label="Copy invitation link" title="Copy invitation link"><span aria-hidden="true">↗</span><span>{copied ? 'Link copied' : 'Share invite'}</span></button>
+        <div className="share-control">
+          <button className="share-button" onClick={() => void copyLink()} aria-label="Copy invitation link" title="Copy invitation link"><span aria-hidden="true">↗</span><span>{copied ? 'Link copied' : 'Share invite'}</span></button>
+          {shareMessage && <p className="share-status" role="status">{shareMessage}</p>}
+        </div>
       </div>
       <div className="vote-header"><div><p className="eyebrow">Find the best fit</p><h2>Choose every option that works</h2></div><span className="vote-total">{totalVotes} {totalVotes === 1 ? 'vote' : 'votes'}</span></div>
       <div className="vote-list">
         {event.options.map((option, index) => {
           const percent = totalVotes ? Math.round(option.votes / totalVotes * 100) : 0;
           return (
-            <button key={option.id} className={`vote-option ${option.user_voted ? 'selected' : ''}`} onClick={() => void vote(option.id)} disabled={busyOption !== null}>
+            <button key={option.id} className={`vote-option ${option.user_voted ? 'selected' : ''}`} onClick={() => void vote(option.id)} disabled={loading || busyOption !== null}>
               <span className="vote-number">{String(index + 1).padStart(2, '0')}</span>
               <span className="vote-choice"><span>{option.option_text}</span><span className="vote-meter"><i style={{ width: `${percent}%` }} /></span></span>
               <span className="vote-count">{option.votes}<small>{option.user_voted ? 'Your vote' : option.votes === 1 ? 'vote' : 'votes'}</small></span>
@@ -116,7 +146,7 @@ export function EventDetail({ shareCode, user, onOpenAuth, onBack }: EventDetail
         })}
       </div>
       {error && <p className="form-error" role="alert">{error}</p>}
-      <p className="vote-note">{user ? `Voting as ${user.username}. Select an option again to remove your vote.` : 'Log in to cast your vote.'}</p>
+      <p className="vote-note">{loading ? 'Checking your session…' : user ? `Voting as ${user.username}. Select an option again to remove your vote.` : 'Log in to cast your vote.'}</p>
     </section>
   );
 }

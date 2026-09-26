@@ -7,7 +7,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from cs50 import SQL
 
 app = Flask(__name__)
-app.secret_key = os.environ.get("SECRET_KEY", "gatherround_super_secret_key")
+app.secret_key = os.environ.get("SECRET_KEY") or secrets.token_hex(32)
 
 # Enable CORS for React frontend requests
 CORS(app, supports_credentials=True, origins=["http://127.0.0.1:5173", "http://localhost:5173"])
@@ -113,11 +113,21 @@ def create_event():
         return jsonify({"error": "Unauthorized"}), 401
 
     data = request.get_json() or {}
-    title = data.get("title", "").strip()
-    description = data.get("description", "").strip()
+    title = data.get("title", "")
+    description = data.get("description", "")
     options = data.get("options", [])
 
-    if not title or not options or len(options) < 2:
+    if not isinstance(title, str) or not isinstance(description, str):
+        return jsonify({"error": "Title and description must be text"}), 400
+
+    title = title.strip()
+    description = description.strip()
+    if isinstance(options, list):
+        options = [option.strip() for option in options if isinstance(option, str) and option.strip()]
+    else:
+        options = []
+
+    if not title or len(title) > 120 or len(description) > 500 or len(options) < 2 or len(options) > 8 or any(len(option) > 160 for option in options):
         return jsonify({"error": "Title and at least two voting options required"}), 400
 
     share_code = secrets.token_urlsafe(8)
@@ -174,6 +184,10 @@ def cast_vote():
 
     if not option_id:
         return jsonify({"error": "Option ID required"}), 400
+
+    option = db.execute("SELECT id FROM options WHERE id = ?", option_id)
+    if not option:
+        return jsonify({"error": "Voting option not found"}), 404
 
     existing = db.execute("SELECT id FROM votes WHERE option_id = ? AND user_id = ?", option_id, user_id)
 

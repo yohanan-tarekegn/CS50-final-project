@@ -18,12 +18,17 @@ export function EventComposer({ onCreated }: EventComposerProps) {
 
   const submit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    const votingOptions = options.map((option) => option.trim()).filter(Boolean);
+    if (votingOptions.length < 2) {
+      setError('Add at least two voting options.');
+      return;
+    }
     setSubmitting(true);
     setError('');
     try {
       const result = await fetchApi<{ event_id: number; share_code: string }>('/api/events', {
         method: 'POST',
-        body: JSON.stringify({ title, description, options: options.filter((option) => option.trim()) }),
+        body: JSON.stringify({ title: title.trim(), description: description.trim(), options: votingOptions }),
       });
       onCreated(result.share_code);
     } catch (submitError) {
@@ -49,7 +54,7 @@ export function EventComposer({ onCreated }: EventComposerProps) {
             {options.map((option, index) => (
               <div className="option-input" key={index}>
                 <span>{String(index + 1).padStart(2, '0')}</span>
-                <input aria-label={`Voting option ${index + 1}`} placeholder={index === 0 ? 'Friday, 7 pm' : 'Saturday, 2 pm'} value={option} onChange={(event) => updateOption(index, event.target.value)} />
+                <input aria-label={`Voting option ${index + 1}`} maxLength={160} placeholder={index === 0 ? 'Friday, 7 pm' : 'Saturday, 2 pm'} value={option} onChange={(event) => updateOption(index, event.target.value)} />
                 {options.length > 2 && <button type="button" className="remove-option" aria-label={`Remove option ${index + 1}`} onClick={() => setOptions((current) => current.filter((_, optionIndex) => optionIndex !== index))}>×</button>}
               </div>
             ))}

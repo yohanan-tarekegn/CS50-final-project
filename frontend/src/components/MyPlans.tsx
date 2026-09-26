@@ -1,6 +1,10 @@
 import { useEffect, useState } from 'react';
 import { fetchApi } from '../api';
 
+interface PlanUser {
+  id: number;
+}
+
 interface Plan {
   id: number;
   title: string;
@@ -10,18 +14,23 @@ interface Plan {
 }
 
 interface MyPlansProps {
+  user: PlanUser | null;
   onOpenPlan: (shareCode: string) => void;
   onCreatePlan: () => void;
   onLogin: () => void;
 }
 
-export function MyPlans({ onOpenPlan, onCreatePlan, onLogin }: MyPlansProps) {
+export function MyPlans({ user, onOpenPlan, onCreatePlan, onLogin }: MyPlansProps) {
   const [plans, setPlans] = useState<Plan[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
   useEffect(() => {
     let active = true;
+    if (!user) {
+      return () => { active = false; };
+    }
+
     fetchApi<{ events: Plan[] }>('/api/events')
       .then((result) => {
         if (active) setPlans(result.events);
@@ -33,7 +42,7 @@ export function MyPlans({ onOpenPlan, onCreatePlan, onLogin }: MyPlansProps) {
         if (active) setLoading(false);
       });
     return () => { active = false; };
-  }, []);
+  }, [user]);
 
   return (
     <section className="plans-page">
@@ -44,7 +53,12 @@ export function MyPlans({ onOpenPlan, onCreatePlan, onLogin }: MyPlansProps) {
         </div>
         <button className="button" onClick={onCreatePlan}>Create a plan <span aria-hidden="true">↗</span></button>
       </div>
-      {loading ? <p className="plans-message">Loading your plans…</p> : error ? (
+      {!user ? (
+        <div className="plans-empty">
+          <h2>Sign in to see your plans</h2>
+          <button className="text-button" onClick={onLogin}>Log in ↗</button>
+        </div>
+      ) : loading ? <p className="plans-message">Loading your plans…</p> : error ? (
         <div className="plans-message">
           <p className="form-error" role="alert">{error}</p>
           {error === 'Unauthorized' && <button className="text-button" onClick={onLogin}>Log in to see your plans</button>}
