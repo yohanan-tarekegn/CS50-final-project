@@ -1,9 +1,7 @@
 // frontend/src/api.ts
 
-export async function fetchApi<T>(
-  endpoint: string,
-  options: RequestInit = {},
-): Promise<T> {
+export async function fetchApi<T>(endpoint: string, options: RequestInit = {},): Promise<T> 
+{
   const defaultHeaders = {
     "Content-Type": "application/json",
   };
