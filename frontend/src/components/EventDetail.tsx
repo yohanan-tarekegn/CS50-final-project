@@ -89,14 +89,14 @@ export function EventDetail({ shareCode, user, onOpenAuth, onBack }: EventDetail
   };
 
   if (error && !event) {
-    return <section className="event-state"><button className="back-link" onClick={onBack}>← All gatherings</button><p className="eyebrow">Gathering unavailable</p><h1>We couldn’t find that plan.</h1><p>{error}</p></section>;
+    return <section className="event-state"><button className="back-link" onClick={onBack}>← Back</button><p className="eyebrow">Gathering unavailable</p><h1>We couldn’t find that plan.</h1><p>{error}</p></section>;
   }
   if (!event) return <section className="event-state"><p className="eyebrow">GatherRound</p><h1>Opening the gathering…</h1></section>;
 
   const totalVotes = event.options.reduce((total, option) => total + option.votes, 0);
   return (
     <section className="event-page">
-      <button className="back-link" onClick={onBack}>← Create a gathering</button>
+      <button className="back-link" onClick={onBack}>← Back</button>
       <div className="event-heading">
         <div><p className="eyebrow">A gathering by {event.creator}</p><h1>{event.title}</h1>{event.description && <p className="event-description">{event.description}</p>}</div>
         <button className="share-button" onClick={() => void copyLink()} aria-label="Copy invitation link" title="Copy invitation link"><span aria-hidden="true">↗</span><span>{copied ? 'Link copied' : 'Share invite'}</span></button>

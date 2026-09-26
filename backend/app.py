@@ -1,5 +1,6 @@
 import os
 import secrets
+from pathlib import Path
 from flask import Flask, request, jsonify, session
 from flask_cors import CORS
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -11,13 +12,16 @@ app.secret_key = os.environ.get("SECRET_KEY", "gatherround_super_secret_key")
 # Enable CORS for React frontend requests
 CORS(app, supports_credentials=True, origins=["http://127.0.0.1:5173", "http://localhost:5173"])
 
-# Initialize CS50 SQL database connection
-db = SQL("sqlite:///gatherround.db")
+# Resolve application data relative to this file, not the launch directory.
+BACKEND_DIR = Path(__file__).resolve().parent
+db_path = (BACKEND_DIR / "gatherround.db").as_posix()
+db = SQL(f"sqlite:///{db_path}")
 
 # Automatically initialize DB tables using schema.sql
 with app.app_context():
-    if os.path.exists("schema.sql"):
-        with open("schema.sql", "r") as f:
+    schema_path = BACKEND_DIR / "schema.sql"
+    if schema_path.exists():
+        with schema_path.open("r") as f:
             statements = f.read().split(";")
             for statement in statements:
                 if statement.strip():
@@ -87,6 +91,20 @@ def get_current_user():
 # -------------------------------------------------------------------
 # EVENT & POLL ENDPOINTS
 # -------------------------------------------------------------------
+
+@app.route("/api/events", methods=["GET"])
+def list_events():
+    user_id = session.get("user_id")
+    if not user_id:
+        return jsonify({"error": "Unauthorized"}), 401
+
+    events = db.execute(
+        "SELECT id, title, description, share_code, created_at "
+        "FROM events WHERE creator_id = ? ORDER BY created_at DESC, id DESC",
+        user_id
+    )
+    return jsonify({"events": events}), 200
+
 
 @app.route("/api/events", methods=["POST"])
 def create_event():

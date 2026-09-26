@@ -647,6 +647,110 @@ h2 {
   line-height: 1.6;
 }
 
+.plans-page {
+  max-width: 850px;
+  margin: 0 auto;
+}
+
+.plans-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  padding-bottom: 25px;
+  border-bottom: 1px solid var(--line);
+}
+
+.plans-heading .eyebrow {
+  margin-bottom: 8px;
+}
+
+.plans-heading h1 {
+  margin: 0;
+  font-family: var(--serif);
+  font-size: 52px;
+  font-weight: 400;
+  line-height: 1;
+}
+
+.plans-message,
+.plans-empty {
+  padding: 30px 0;
+  color: var(--muted);
+}
+
+.plans-message .text-button {
+  margin-top: 12px;
+}
+
+.plans-empty h2 {
+  margin-bottom: 8px;
+  font-family: var(--serif);
+  font-size: 27px;
+  font-weight: 400;
+}
+
+.plans-empty p {
+  margin-bottom: 15px;
+  color: var(--muted);
+}
+
+.plans-list {
+  display: grid;
+}
+
+.plan-row {
+  min-height: 86px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto 24px;
+  align-items: center;
+  gap: 20px;
+  padding: 16px 4px;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+
+.plan-row:hover .plan-copy strong,
+.plan-row:hover .plan-open {
+  color: var(--accent-dark);
+}
+
+.plan-copy {
+  min-width: 0;
+  display: grid;
+  gap: 5px;
+}
+
+.plan-copy strong {
+  color: var(--ink);
+  font-family: var(--serif);
+  font-size: 20px;
+  font-weight: 400;
+  overflow-wrap: anywhere;
+}
+
+.plan-copy > span {
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 13px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.plan-date {
+  color: var(--muted);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.plan-open {
+  color: var(--accent);
+  font-size: 19px;
+}
+
 .site-footer {
   min-height: 64px;
   display: flex;
@@ -808,6 +912,35 @@ h2 {
 
   .event-state h1 {
     font-size: 40px;
+  }
+
+  .plans-heading {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  .plans-heading h1 {
+    font-size: 43px;
+  }
+
+  .plans-heading .button {
+    width: 100%;
+  }
+
+  .plan-row {
+    grid-template-columns: minmax(0, 1fr) 22px;
+    gap: 9px;
+  }
+
+  .plan-date {
+    grid-column: 1;
+    grid-row: 2;
+  }
+
+  .plan-open {
+    grid-column: 2;
+    grid-row: 1 / span 2;
   }
 
   .site-footer {

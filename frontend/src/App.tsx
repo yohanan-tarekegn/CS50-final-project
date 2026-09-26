@@ -3,6 +3,7 @@ import { fetchApi } from './api';
 import { AuthPanel } from './components/AuthPanel';
 import { EventComposer } from './components/EventComposer';
 import { EventDetail } from './components/EventDetail';
+import { MyPlans } from './components/MyPlans';
 
 export interface User {
   id: number;
@@ -14,6 +15,7 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [authMode, setAuthMode] = useState<'login' | 'register' | null>(null);
   const [shareCode, setShareCode] = useState(() => readShareCode());
+  const [showPlans, setShowPlans] = useState(() => window.location.pathname === '/plans');
 
   useEffect(() => {
     fetchApi<{ user: User | null }>('/api/me')
@@ -25,7 +27,10 @@ function App() {
   }, []);
 
   useEffect(() => {
-    const handlePopState = () => setShareCode(readShareCode());
+    const handlePopState = () => {
+      setShareCode(readShareCode());
+      setShowPlans(window.location.pathname === '/plans');
+    };
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
@@ -39,6 +44,14 @@ function App() {
   const goHome = () => {
     window.history.pushState({}, '', '/');
     setShareCode(null);
+    setShowPlans(false);
+    setAuthMode(null);
+  };
+
+  const goToPlans = () => {
+    window.history.pushState({}, '', '/plans');
+    setShareCode(null);
+    setShowPlans(true);
     setAuthMode(null);
   };
 
@@ -57,6 +70,7 @@ function App() {
         <div className="account-area">
           {loading ? <span className="quiet-label">Checking session</span> : user ? (
             <>
+              <button className="text-button" onClick={goToPlans}>My plans</button>
               <span className="signed-in">{user.username}</span>
               <button className="text-button" onClick={() => void logout()}>Sign out</button>
             </>
@@ -71,13 +85,15 @@ function App() {
 
       <main className="main-content">
         {shareCode ? (
-          <EventDetail shareCode={shareCode} user={user} onOpenAuth={() => setAuthMode('login')} onBack={goHome} />
+          <EventDetail shareCode={shareCode} user={user} onOpenAuth={() => setAuthMode('login')} onBack={showPlans ? goToPlans : goHome} />
         ) : authMode ? (
           <AuthPanel
             initialMode={authMode}
             onCancel={() => setAuthMode(null)}
             onSuccess={(nextUser) => { setUser(nextUser); setAuthMode(null); }}
           />
+        ) : showPlans ? (
+          <MyPlans onOpenPlan={openEvent} onCreatePlan={goHome} onLogin={() => setAuthMode('login')} />
         ) : (
           <>
             <section className="intro-row">
