@@ -49,7 +49,7 @@ The files below are the files that make up the application and its development s
 
 - `frontend/index.html` is Vite's HTML shell. It defines the document language, viewport behavior, page title, favicon links, root mount element, and the module entry point.
 - `frontend/package.json` defines the frontend package metadata, runtime dependencies, development dependencies, and scripts: `dev` starts Vite, `build` type-checks and bundles the app, `lint` runs ESLint, and `preview` serves the production bundle locally.
-- `frontend/vite.config.ts` configures the React Vite plugin and the local development server. Its `/api` proxy forwards browser requests to Flask on port 5000, which lets the frontend use relative API URLs and preserves cookie behavior during development.
+- `frontend/vite.config.ts` configures the React Vite plugin and the local development server. Its `/api` proxy forwards browser requests to Flask on port 5001, which lets the frontend use relative API URLs and preserves cookie behavior during development.
 - `frontend/eslint.config.js` configures JavaScript, TypeScript, React Hooks, and React Refresh lint rules while excluding generated build output.
 - `frontend/tsconfig.json` is the shared TypeScript project configuration. `frontend/tsconfig.app.json` type-checks the browser source under `src`, with strict unused-code checks and bundler resolution. `frontend/tsconfig.node.json` type-checks the Vite configuration and its Node.js types.
 - `frontend/public/favicon.svg` supplies the browser tab icon. `frontend/public/icons.svg` contains the project's reusable static icon artwork.
@@ -119,7 +119,7 @@ $env:SECRET_KEY = "replace-with-a-long-random-development-value"
 python backend\app.py
 ```
 
-The API listens on `http://127.0.0.1:5000`. In a second terminal, install and start the frontend:
+The API listens on `http://127.0.0.1:5001`. In a second terminal, install and start the frontend:
 
 ```powershell
 cd frontend
