@@ -1,6 +1,7 @@
 # GatherRound
+#### Video Demo:  https://youtu.be/Xj9PMRVM0u0
 
-GatherRound is a small web application for organizing informal group plans. An organizer creates a gathering, adds options such as dates, times, places, or activities, and shares one invitation link. Participants can open the link, review the choices, and vote for every option that works for them. The goal is to replace scattered messages with one simple, shareable poll.
+GatherRound is a web application for organizing informal group plans. An organizer creates a gathering, adds options such as dates, times, places, or activities, and shares one invitation link. Participants can open the link, review the choices, and vote for every option that works for them. The goal is to replace scattered messages with one simple, shareable poll.
 
 The project is built as a React and TypeScript single-page application backed by a Python Flask API and a SQLite database. It is designed for local development and as a compact full-stack project: the frontend handles navigation and interaction, while the backend owns authentication, data validation, persistence, and vote rules.
 
